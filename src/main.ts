@@ -1,4 +1,5 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { makeRequest } from './NougatAPIHandler';
 
 // Remember to rename these classes and interfaces!
 
@@ -64,6 +65,20 @@ export default class MyPlugin extends Plugin {
 				}
 			}
 		});
+
+		this.addCommand({
+			id: 'call-nougat-api',
+			name: 'Call Nougat API',
+			callback: async () => {
+				let file =  this.app.workspace.getActiveFile();
+				if (!file) {
+					new Notice("No active file");
+					return;
+				}
+
+				await makeRequest(file, 1, 1);
+			}
+		})
 
 		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
