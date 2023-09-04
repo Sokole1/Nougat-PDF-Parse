@@ -1,6 +1,8 @@
-import { App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { ItemView, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { makeRequest } from './NougatAPIHandler';
-
+import ReactView from './ReactView';
+import React from 'react';
+import ReactDOM from 'react-dom';
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -31,10 +33,10 @@ export default class MyPlugin extends Plugin {
 
 		// This adds a simple command that can be triggered anywhere
 		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
+			id: 'open-pdf-modal',
+			name: 'Open PDF Modal',
 			callback: () => {
-				new SampleModal(this.app).open();
+				new PDFModal(this.app).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -57,7 +59,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new SampleModal(this.app).open();
+						new PDFModal(this.app).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true
@@ -106,21 +108,50 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class SampleModal extends Modal {
+class PDFModal extends Modal {
+	private reactComponent: React.ReactElement;
+
 	constructor(app: App) {
 		super(app);
 	}
 
-	onOpen() {
-		const {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
+	async onOpen() {
+		this.reactComponent = React.createElement(
+			ReactView
+		)
 
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
+		ReactDOM.render(this.reactComponent, this.contentEl);
 	}
 }
+
+// class ExampleView extends ItemView {
+// 	root: Root | null = null;
+
+// 	constructor(leaf: WorkspaceLeaf) {
+// 		super(leaf);
+// 	}
+
+// 	getViewType() {
+// 		return VIEW_TYPE_EXAMPLE;
+// 	}
+
+// 	getDisplayText() {
+// 		return "Example view";
+// 	}
+
+// 	async onOpen() {
+// 		this.root = createRoot(this.containerEl.children[1]);
+// 		this.root.render(
+// 			<StrictMode>
+// 				<ReactView />,
+// 			</StrictMode>,
+// 		);
+// 	}
+
+// 	async onClose() {
+// 		this.root?.unmount();
+// 	}
+// }
 
 class SampleSettingTab extends PluginSettingTab {
 	plugin: MyPlugin;

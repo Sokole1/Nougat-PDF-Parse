@@ -9,6 +9,7 @@ export async function makeRequest(file: TFile, start: number, stop: number) {
   formData.append("stop", stop.toString());
 
   try {
+    console.log("Sending API request... with formData", formData)
     const response = await fetch(NOUGAT_ENDPOINT, {
       method: "POST",
       body: formData,
