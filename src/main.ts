@@ -1,8 +1,7 @@
-import { ItemView, App, Editor, MarkdownView, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 import { makeRequest } from './NougatAPIHandler';
-import ReactView from './ReactView';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import PDFModal from './PDFModal';
+
 // Remember to rename these classes and interfaces!
 
 interface MyPluginSettings {
@@ -108,50 +107,6 @@ export default class MyPlugin extends Plugin {
 	}
 }
 
-class PDFModal extends Modal {
-	private reactComponent: React.ReactElement;
-
-	constructor(app: App) {
-		super(app);
-	}
-
-	async onOpen() {
-		this.reactComponent = React.createElement(
-			ReactView
-		)
-
-		ReactDOM.render(this.reactComponent, this.contentEl);
-	}
-}
-
-// class ExampleView extends ItemView {
-// 	root: Root | null = null;
-
-// 	constructor(leaf: WorkspaceLeaf) {
-// 		super(leaf);
-// 	}
-
-// 	getViewType() {
-// 		return VIEW_TYPE_EXAMPLE;
-// 	}
-
-// 	getDisplayText() {
-// 		return "Example view";
-// 	}
-
-// 	async onOpen() {
-// 		this.root = createRoot(this.containerEl.children[1]);
-// 		this.root.render(
-// 			<StrictMode>
-// 				<ReactView />,
-// 			</StrictMode>,
-// 		);
-// 	}
-
-// 	async onClose() {
-// 		this.root?.unmount();
-// 	}
-// }
 
 class SampleSettingTab extends PluginSettingTab {
 	plugin: MyPlugin;
