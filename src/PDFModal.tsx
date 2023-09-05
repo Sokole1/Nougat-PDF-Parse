@@ -3,9 +3,12 @@ import ReactView from './ReactView';
 import { Root, createRoot } from 'react-dom/client';
 import * as React from 'react';
 
-interface PDFViewerProps {}
+interface PDFViewerProps {
+  pdfUrl: string;
+}
 
-function NewPDFViewer() {
+function PDFViewer(props: PDFViewerProps) {
+  const { pdfUrl } = props;
   const [pdfDocument, setPdfDocument] = React.useState(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [pageCount, setPageCount] = React.useState(0);
@@ -16,10 +19,9 @@ function NewPDFViewer() {
   React.useEffect(() => {
     async function loadPdf() {
       // Load a sample PDF document for demonstration
-      const url = 'https://arxiv.org/pdf/quant-ph/0410100.pdf';
       const pdfjs = await loadPdfJs();
       // Load the PDF document
-      pdfjs.getDocument(url).promise.then((pdf) => {
+      pdfjs.getDocument(pdfUrl).promise.then((pdf) => {
         setPdfDocument(pdf);
         setPageCount(pdf.numPages);
         setEndPage(pdf.numPages);
@@ -138,7 +140,7 @@ export default class PDFModal extends Modal {
 
   async onOpen(): Promise<void> {
     this.root = createRoot(this.contentEl);
-    this.root.render(<NewPDFViewer />);
+    this.root.render(<PDFViewer pdfUrl={'https://arxiv.org/pdf/quant-ph/0410100.pdf'} />);
   }
 
   async onClose(): Promise<void> {
