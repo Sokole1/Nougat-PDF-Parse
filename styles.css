@@ -6,3 +6,20 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+.pdf-input-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.pdf-input {
+  padding: 0;
+  border: none;
+  outline: none;
+  font-size: inherit;
+  background-color: transparent;
+  width: auto;
+}
+
+.pdf-input[type="number"] {
+  max-width: 6ch;
+}

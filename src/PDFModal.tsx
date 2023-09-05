@@ -85,8 +85,10 @@ function PDFViewer(props: PDFViewerProps) {
     const viewport = page.getViewport({ scale });
     const canvas = document.getElementById('pdf-canvas');
     const context = canvas.getContext('2d');
-    canvas.height = viewport.height;
+    canvas.style.width = '100%'; // Set the width to 100%
+    canvas.style.height = '100%'; // Set the height to 100%
     canvas.width = viewport.width;
+    canvas.height = viewport.height;
     const renderContext = {
       canvasContext: context,
       viewport: viewport,
@@ -103,21 +105,20 @@ function PDFViewer(props: PDFViewerProps) {
   return (
     <div>
       <div>
-        <button onClick={handlePrevPage}>Prev</button>
-        <label>
-          Page:
-          <input type="number" value={currentPage} onChange={handlePageChange} />
-          / {pageCount}
+        <button onClick={handlePrevPage}>-</button>
+        <label className="pdf-input-label">
+          <input className="pdf-input" type="number" value={currentPage} onChange={handlePageChange} />
         </label>
-        <button onClick={handleNextPage}>Next</button>
+        <button onClick={handleNextPage}>+</button>
+        &nbsp; Total pages: {pageCount}
       </div>
       <div>
         <label>
-          Page range:
-          <input type="number" name="startPage" value={startPage} onChange={handlePageRangeChange} onBlur={handlePageRangeBlur} />
+          Range:
+          <input className="pdf-input" type="number" name="startPage" value={startPage} onChange={handlePageRangeChange} onBlur={handlePageRangeBlur} />
           -
-          <input type="number" name="endPage" value={endPage} onChange={handlePageRangeChange} onBlur={handlePageRangeBlur} />
-          <span>/Pages selection: {totalPages}</span>
+          <input className="pdf-input" type="number" name="endPage" value={endPage} onChange={handlePageRangeChange} onBlur={handlePageRangeBlur} />
+          <span>&nbsp;{totalPages} Pages Selected</span>
         </label>
       </div>
       <canvas id="pdf-canvas"></canvas>
