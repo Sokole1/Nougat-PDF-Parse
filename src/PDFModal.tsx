@@ -9,22 +9,25 @@ interface PDFViewerProps {
 
 function PDFViewer(props: PDFViewerProps) {
   const { pdfUrl } = props;
+  let maxPages = 1;
   const [pdfDocument, setPdfDocument] = React.useState(null);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [pageCount, setPageCount] = React.useState(0);
+  const [totalPages, setTotalPages] = React.useState(0);
 
   const [startPage, setStartPage] = React.useState(1);
   const [endPage, setEndPage] = React.useState(1);
 
   React.useEffect(() => {
     async function loadPdf() {
-      // Load a sample PDF document for demonstration
       const pdfjs = await loadPdfJs();
       // Load the PDF document
       pdfjs.getDocument(pdfUrl).promise.then((pdf) => {
         setPdfDocument(pdf);
-        setPageCount(pdf.numPages);
-        setEndPage(pdf.numPages);
+        maxPages = pdf.numPages;
+        setPageCount(maxPages);
+        setEndPage(maxPages);
+        setTotalPages(maxPages);
       });
     }
     loadPdf();
@@ -32,44 +35,35 @@ function PDFViewer(props: PDFViewerProps) {
 
   const handlePageChange = (event) => {
     const value = parseInt(event.target.value, 10);
-    if (!isNaN(value) && value >= startPage && value <= endPage && value <= pageCount) {
-      setCurrentPage(value);
-    }
+    setCurrentPage(value);
   };
 
   const handlePageRangeChange = (event) => {
     const { name, value } = event.target;
 
-    if (value === '') {
-      return;
-    }
-
     if (name === 'startPage') {
       const newStartPage = parseInt(value, 10);
-      if (!isNaN(newStartPage)) {
         setStartPage(newStartPage);
-      }
     } else if (name === 'endPage') {
       const newEndPage = parseInt(value, 10);
-      if (!isNaN(newEndPage)) {
         setEndPage(newEndPage);
-      }
     }
   };
 
   const handlePageRangeBlur = () => {
     if (startPage >= 1 && endPage <= pageCount && startPage <= endPage) {
-      setPageCount(endPage - startPage + 1);
       if (currentPage < startPage) {
         setCurrentPage(startPage);
       } else if (currentPage > endPage) {
         setCurrentPage(endPage);
       }
+      setTotalPages(endPage - startPage + 1);
     } else {
       setStartPage(1);
       setEndPage(pageCount);
       setPageCount(pageCount);
       setCurrentPage(1);
+      setTotalPages(pageCount);
     }
   };
 
@@ -101,14 +95,13 @@ function PDFViewer(props: PDFViewerProps) {
   };
 
   React.useEffect(() => {
-    if (pdfDocument) {
+    if (pdfDocument && !Number.isNaN(currentPage) && currentPage >= startPage && currentPage <= endPage && currentPage <= pageCount) {
       renderPage(currentPage);
     }
   }, [pdfDocument, currentPage]);
 
   return (
     <div>
-      <canvas id="pdf-canvas"></canvas>
       <div>
         <button onClick={handlePrevPage}>Prev</button>
         <label>
@@ -124,8 +117,10 @@ function PDFViewer(props: PDFViewerProps) {
           <input type="number" name="startPage" value={startPage} onChange={handlePageRangeChange} onBlur={handlePageRangeBlur} />
           -
           <input type="number" name="endPage" value={endPage} onChange={handlePageRangeChange} onBlur={handlePageRangeBlur} />
+          <span>/Pages selection: {totalPages}</span>
         </label>
       </div>
+      <canvas id="pdf-canvas"></canvas>
     </div>
   );
 }
