@@ -10,19 +10,20 @@ interface PDFViewerProps {
 function PDFViewer(props: PDFViewerProps) {
   const { pdfUrl } = props;
   let maxPages = 1;
-  const [pdfDocument, setPdfDocument] = React.useState(null);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const [pageCount, setPageCount] = React.useState(0);
-  const [totalPages, setTotalPages] = React.useState(0);
 
-  const [startPage, setStartPage] = React.useState(1);
-  const [endPage, setEndPage] = React.useState(1);
+  const [pdfDocument, setPdfDocument] = React.useState<null | any>(null);
+  const [currentPage, setCurrentPage] = React.useState<number>(1);
+  const [pageCount, setPageCount] = React.useState<number>(0);
+  const [totalPages, setTotalPages] = React.useState<number>(0);
+
+  const [startPage, setStartPage] = React.useState<number>(1);
+  const [endPage, setEndPage] = React.useState<number>(1);
 
   React.useEffect(() => {
     async function loadPdf() {
       const pdfjs = await loadPdfJs();
       // Load the PDF document
-      pdfjs.getDocument(pdfUrl).promise.then((pdf) => {
+      pdfjs.getDocument(pdfUrl).promise.then((pdf: { numPages: number; }) => {
         setPdfDocument(pdf);
         maxPages = pdf.numPages;
         setPageCount(maxPages);
@@ -31,22 +32,30 @@ function PDFViewer(props: PDFViewerProps) {
       });
     }
     loadPdf();
-  }, []);
+  }, [pdfUrl]);
 
-  const handlePageChange = (event) => {
+  const handlePageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(event.target.value, 10);
     setCurrentPage(value);
   };
 
-  const handlePageRangeChange = (event) => {
+  const handlePageBlur = () => {
+    if (currentPage < 1) {
+      setCurrentPage(1);
+    } else if (currentPage > endPage) {
+      setCurrentPage(endPage);
+    }
+  };
+
+  const handlePageRangeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
 
     if (name === 'startPage') {
       const newStartPage = parseInt(value, 10);
-        setStartPage(newStartPage);
+      setStartPage(newStartPage);
     } else if (name === 'endPage') {
       const newEndPage = parseInt(value, 10);
-        setEndPage(newEndPage);
+      setEndPage(newEndPage);
     }
   };
 
@@ -79,35 +88,37 @@ function PDFViewer(props: PDFViewerProps) {
     }
   };
 
-  const renderPage = async (pageNumber) => {
-    const page = await pdfDocument.getPage(pageNumber);
-    const scale = 1.5;
-    const viewport = page.getViewport({ scale });
-    const canvas = document.getElementById('pdf-canvas');
-    const context = canvas.getContext('2d');
-    canvas.style.width = '100%'; // Set the width to 100%
-    canvas.style.height = '100%'; // Set the height to 100%
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    const renderContext = {
-      canvasContext: context,
-      viewport: viewport,
-    };
-    await page.render(renderContext);
+  const renderPage = async (pageNumber: number) => {
+    if (pdfDocument) {
+      const page = await pdfDocument.getPage(pageNumber);
+      const scale = 1.5;
+      const viewport = page.getViewport({ scale });
+      const canvas = document.getElementById('pdf-canvas') as HTMLCanvasElement;
+      const context = canvas.getContext('2d');
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+      };
+      await page.render(renderContext);
+    }
   };
 
   React.useEffect(() => {
     if (pdfDocument && !Number.isNaN(currentPage) && currentPage >= startPage && currentPage <= endPage && currentPage <= pageCount) {
       renderPage(currentPage);
     }
-  }, [pdfDocument, currentPage]);
+  }, [pdfDocument, currentPage, startPage, endPage, pageCount]);
 
   return (
     <div>
       <div>
         <button onClick={handlePrevPage}>-</button>
         <label className="pdf-input-label">
-          <input className="pdf-input" type="number" value={currentPage} onChange={handlePageChange} />
+          <input className="pdf-input" type="number" value={currentPage} onChange={handlePageChange} onBlur={handlePageBlur}/>
         </label>
         <button onClick={handleNextPage}>+</button>
         &nbsp; Total pages: {pageCount}
@@ -125,6 +136,7 @@ function PDFViewer(props: PDFViewerProps) {
     </div>
   );
 }
+
 
 
 export default class PDFModal extends Modal {
