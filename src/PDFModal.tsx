@@ -23,16 +23,16 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 		async function loadPdf() {
 			const PDFjs = await loadPdfJs();
 			// Load the PDF document
-			PDFjs
-				.getDocument(pdfBinary)
-				.promise.then((pdf: { numPages: number }) => {
+			PDFjs.getDocument(pdfBinary).promise.then(
+				(pdf: { numPages: number }) => {
 					setPdfDocument(pdf);
 					maxPages = pdf.numPages;
 					setPageCount(maxPages);
 					setEndPage(maxPages);
 					setTotalPages(maxPages);
 					setPageRange(1, maxPages);
-				});
+				}
+			);
 		}
 		loadPdf();
 	}, [pdfBinary]);
@@ -66,21 +66,30 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 	};
 
 	const handlePageRangeBlur = () => {
-		if (startPage >= 1 && endPage <= pageCount && startPage <= endPage) {
-			if (currentPage < startPage) {
-				setCurrentPage(startPage);
-			} else if (currentPage > endPage) {
-				setCurrentPage(endPage);
-			}
-			setTotalPages(endPage - startPage + 1);
-		} else {
-			setStartPage(1);
-			setEndPage(pageCount);
-			setPageCount(pageCount);
-			setCurrentPage(1);
-			setTotalPages(pageCount);
+		let newStartPage = startPage;
+		let newEndPage = endPage;
+
+		if (startPage < 1) newStartPage = 1;
+		if (endPage > pageCount) newEndPage = pageCount;
+		if (startPage > endPage) {
+			newStartPage = endPage;
+			newEndPage = startPage;
 		}
-		setPageRange(startPage, endPage);
+
+		// Ensure currentPage is not out of range
+		let newCurrentPage = currentPage;
+		if (currentPage < newStartPage) {
+			newCurrentPage = newStartPage;
+		} else if (currentPage > newEndPage) {
+			newCurrentPage = newEndPage;
+		}
+
+		setStartPage(newStartPage);
+		setEndPage(newEndPage);
+		setCurrentPage(newCurrentPage); // Update currentPage
+		setTotalPages(newEndPage - newStartPage + 1);
+
+		setPageRange(newStartPage, newEndPage);
 	};
 
 	const handleNextPage = () => {
@@ -128,67 +137,68 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 		}
 	}, [pdfDocument, currentPage, startPage, endPage, pageCount]);
 
-return (
-  <div className="pdf-main-container">
-    {/* Control Panel */}
-    <div className="pdf-control-panel">
-      {/* Current Page Controls */}
-      <div className="pdf-control-section">
-        <div className="pdf-flex-center pdf-range-label">
-          View Page:
-          <button onClick={handlePrevPage}>-</button>
-          <label className="pdf-input-label">
-            <input
-              className="pdf-input"
-              type="number"
-              value={currentPage}
-              onChange={handlePageChange}
-              onBlur={handlePageBlur}
-            />
-          </label>
-          <button onClick={handleNextPage}>+</button>
-        </div>
-        <span>Total PDF Pages: {pageCount}</span>
-      </div>
-      <hr className="pdf-control-section-hr" />
+	return (
+		<div className="pdf-main-container">
+			{/* Control Panel */}
+			<div className="pdf-control-panel">
+				{/* Current Page Controls */}
+				<div className="pdf-control-section">
+					<div className="pdf-flex-center pdf-range-label">
+						View Page:
+						<button onClick={handlePrevPage}>-</button>
+						<label className="pdf-input-label">
+							<input
+								className="pdf-input"
+								type="number"
+								value={currentPage}
+								onChange={handlePageChange}
+								onBlur={handlePageBlur}
+							/>
+						</label>
+						<button onClick={handleNextPage}>+</button>
+					</div>
+					<span>Total PDF Pages: {pageCount}</span>
+				</div>
+				<hr className="pdf-control-section-hr" />
 
-      {/* Range Controls */}
-      <div className="pdf-control-section">
-        <label className="pdf-range-label">
-          Range:
-          <input
-            className="pdf-input"
-            type="number"
-            name="startPage"
-            value={startPage}
-            onChange={handlePageRangeChange}
-            onBlur={handlePageRangeBlur}
-          />
-          -
-          <input
-            className="pdf-input"
-            type="number"
-            name="endPage"
-            value={endPage}
-            onChange={handlePageRangeChange}
-            onBlur={handlePageRangeBlur}
-          />
-        </label>
-        <span>{totalPages} Pages Selected</span>
-      </div>
-      <hr className="pdf-control-section-hr" />
+				{/* Range Controls */}
+				<div className="pdf-control-section">
+					<label className="pdf-range-label">
+						Range:
+						<input
+							className="pdf-input"
+							type="number"
+							name="startPage"
+							value={startPage}
+							onChange={handlePageRangeChange}
+							onBlur={handlePageRangeBlur}
+						/>
+						-
+						<input
+							className="pdf-input"
+							type="number"
+							name="endPage"
+							value={endPage}
+							onChange={handlePageRangeChange}
+							onBlur={handlePageRangeBlur}
+						/>
+					</label>
+					<span>{totalPages} Pages Selected</span>
+				</div>
+				<hr className="pdf-control-section-hr" />
 
-      {/* Submit Button */}
-      <button onClick={() => onSubmit(startPage, endPage)}>Submit</button>
-    </div>
-    
-    {/* PDF Canvas */}
-    <div className="pdf-canvas-container">
-      <canvas id="pdf-canvas"></canvas>
-    </div>
-  </div>
-);
+				{/* Submit Button */}
+				<button onClick={() => onSubmit(startPage, endPage)}>
+					Submit
+				</button>
+			</div>
 
+			{/* PDF Canvas */}
+			<div className="pdf-canvas-container">
+				<canvas id="pdf-canvas"></canvas>
+			</div>
+		</div>
+	);
 }
 
 export default class PDFModal extends Modal {
