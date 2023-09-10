@@ -35,7 +35,9 @@ export default class MyPlugin extends Plugin {
 			id: 'open-pdf-modal',
 			name: 'Open PDF Modal',
 			callback: () => {
-				new PDFModal(this.app).open();
+				new PDFModal(this.app, (startPage, endPage) => {
+					new Notice("SUBMITTED WITH START PAGE: " + startPage + " AND END PAGE: " + endPage);
+				}).open();
 			}
 		});
 		// This adds an editor command that can perform some operation on the current editor instance
@@ -58,7 +60,7 @@ export default class MyPlugin extends Plugin {
 					// If checking is true, we're simply "checking" if the command can be run.
 					// If checking is false, then we want to actually perform the operation.
 					if (!checking) {
-						new PDFModal(this.app).open();
+						// new PDFModal(this.app).open();
 					}
 
 					// This command will only show up in Command Palette when the check function returns true

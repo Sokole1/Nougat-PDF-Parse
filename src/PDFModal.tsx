@@ -5,10 +5,11 @@ import * as React from "react";
 
 interface PDFViewerProps {
 	pdfUrl: string;
+	setPageRange: (startPage: number, endPage: number) => void;
+	onSubmit: (startPage: number, endPage: number) => void;
 }
 
-function PDFViewer(props: PDFViewerProps) {
-	const { pdfUrl } = props;
+function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
 	let maxPages = 1;
 
 	const [pdfDocument, setPdfDocument] = React.useState<null | any>(null);
@@ -31,6 +32,7 @@ function PDFViewer(props: PDFViewerProps) {
 					setPageCount(maxPages);
 					setEndPage(maxPages);
 					setTotalPages(maxPages);
+					setPageRange(1, maxPages);
 				});
 		}
 		loadPdf();
@@ -61,6 +63,7 @@ function PDFViewer(props: PDFViewerProps) {
 			const newEndPage = parseInt(value, 10);
 			setEndPage(newEndPage);
 		}
+		setPageRange(startPage, endPage);
 	};
 
 	const handlePageRangeBlur = () => {
@@ -78,6 +81,7 @@ function PDFViewer(props: PDFViewerProps) {
 			setCurrentPage(1);
 			setTotalPages(pageCount);
 		}
+		setPageRange(startPage, endPage);
 	};
 
 	const handleNextPage = () => {
@@ -167,21 +171,39 @@ function PDFViewer(props: PDFViewerProps) {
 				</div>
 			</div>
 			<canvas id="pdf-canvas"></canvas>
+			<div>
+			<button onClick={() => onSubmit(startPage, endPage)}>Submit</button>
+		</div>
 		</div>
 	);
 }
 
 export default class PDFModal extends Modal {
 	private root: Root | null = null;
+	pageRange: { startPage: number; endPage: number } = {
+		startPage: 0,
+		endPage: 0,
+	}
+	onSubmit: (startPage: number, endPage: number) => void;
 
-	constructor(app: App) {
+	constructor(app: App, onSubmit: (startPage: number, endPage: number) => void) {
 		super(app);
+		this.onSubmit = onSubmit;
+	}
+
+	setPageRange(startPage: number, endPage: number) {
+		this.pageRange = { startPage, endPage };
+	}
+
+	onSubmitModal() {
+		this.onSubmit(this.pageRange.startPage, this.pageRange.endPage);
+		this.close();
 	}
 
 	async onOpen(): Promise<void> {
 		this.root = createRoot(this.contentEl);
 		this.root.render(
-			<PDFViewer pdfUrl={"https://arxiv.org/pdf/quant-ph/0410100.pdf"} />
+			<PDFViewer pdfUrl={"https://arxiv.org/pdf/quant-ph/0410100.pdf"} setPageRange={this.setPageRange.bind(this)} onSubmit={this.onSubmitModal.bind(this)} />
 		);
 	}
 
