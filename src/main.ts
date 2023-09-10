@@ -35,7 +35,12 @@ export default class MyPlugin extends Plugin {
 			id: 'open-pdf-modal',
 			name: 'Open PDF Modal',
 			callback: () => {
-				new PDFModal(this.app, (startPage, endPage) => {
+				const file = this.app.workspace.getActiveFile();
+				if (!file || file.extension !== "pdf") {
+					new Notice("No active PDF");
+					return;
+				}
+				new PDFModal(this.app, file, (startPage, endPage) => {
 					new Notice("SUBMITTED WITH START PAGE: " + startPage + " AND END PAGE: " + endPage);
 				}).open();
 			}

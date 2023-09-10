@@ -1,15 +1,14 @@
-import { App, Modal, loadPdfJs } from "obsidian";
-import ReactView from "./ReactView";
+import { App, Modal, TFile, loadPdfJs } from "obsidian";
 import { Root, createRoot } from "react-dom/client";
 import * as React from "react";
 
 interface PDFViewerProps {
-	pdfUrl: string;
+	pdfBinary: ArrayBuffer;
 	setPageRange: (startPage: number, endPage: number) => void;
 	onSubmit: (startPage: number, endPage: number) => void;
 }
 
-function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
+function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 	let maxPages = 1;
 
 	const [pdfDocument, setPdfDocument] = React.useState<null | any>(null);
@@ -22,10 +21,10 @@ function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
 
 	React.useEffect(() => {
 		async function loadPdf() {
-			const pdfjs = await loadPdfJs();
+			const PDFjs = await loadPdfJs();
 			// Load the PDF document
-			pdfjs
-				.getDocument(pdfUrl)
+			PDFjs
+				.getDocument(pdfBinary)
 				.promise.then((pdf: { numPages: number }) => {
 					setPdfDocument(pdf);
 					maxPages = pdf.numPages;
@@ -36,7 +35,7 @@ function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
 				});
 		}
 		loadPdf();
-	}, [pdfUrl]);
+	}, [pdfBinary]);
 
 	const handlePageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const value = parseInt(event.target.value, 10);
@@ -198,13 +197,16 @@ export default class PDFModal extends Modal {
 		startPage: 0,
 		endPage: 0,
 	};
+	file: TFile;
 	onSubmit: (startPage: number, endPage: number) => void;
 
 	constructor(
 		app: App,
+		file: TFile,
 		onSubmit: (startPage: number, endPage: number) => void
 	) {
 		super(app);
+		this.file = file;
 		this.onSubmit = onSubmit;
 	}
 
@@ -218,10 +220,11 @@ export default class PDFModal extends Modal {
 	}
 
 	async onOpen(): Promise<void> {
+		const pdfBinary = await this.app.vault.readBinary(this.file);
 		this.root = createRoot(this.contentEl);
 		this.root.render(
 			<PDFViewer
-				pdfUrl={"https://arxiv.org/pdf/quant-ph/0410100.pdf"}
+				pdfBinary={pdfBinary}
 				setPageRange={this.setPageRange.bind(this)}
 				onSubmit={this.onSubmitModal.bind(this)}
 			/>
