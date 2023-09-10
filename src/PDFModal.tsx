@@ -99,7 +99,7 @@ function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
 	const renderPage = async (pageNumber: number) => {
 		if (pdfDocument) {
 			const page = await pdfDocument.getPage(pageNumber);
-			const scale = 1.5;
+			const scale = 1;
 			const viewport = page.getViewport({ scale });
 			const canvas = document.getElementById(
 				"pdf-canvas"
@@ -130,18 +130,13 @@ function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
 	}, [pdfDocument, currentPage, startPage, endPage, pageCount]);
 
 return (
-  <div style={{ display: "flex" }}>
+  <div className="pdf-main-container">
     {/* Control Panel */}
-    <div style={{ 
-      display: "flex", 
-      flexDirection: "column", 
-      alignItems: "flex-start", 
-      padding: "16px", 
-      borderRight: "1px solid #ccc" 
-    }}>
+    <div className="pdf-control-panel">
       {/* Current Page Controls */}
-      <div style={{ marginBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+      <div className="pdf-control-section">
+        <div className="pdf-flex-center pdf-range-label">
+          View Page:
           <button onClick={handlePrevPage}>-</button>
           <label className="pdf-input-label">
             <input
@@ -154,13 +149,13 @@ return (
           </label>
           <button onClick={handleNextPage}>+</button>
         </div>
-        <span>Total pages: {pageCount}</span>
+        <span>Total PDF Pages: {pageCount}</span>
       </div>
-      <hr style={{ width: "100%", marginBottom: "24px" }} />
+      <hr className="pdf-control-section-hr" />
 
       {/* Range Controls */}
-      <div style={{ marginBottom: "24px" }}>
-        <label style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+      <div className="pdf-control-section">
+        <label className="pdf-range-label">
           Range:
           <input
             className="pdf-input"
@@ -182,21 +177,18 @@ return (
         </label>
         <span>{totalPages} Pages Selected</span>
       </div>
-      <hr style={{ width: "100%", marginBottom: "24px" }} />
+      <hr className="pdf-control-section-hr" />
 
       {/* Submit Button */}
       <button onClick={() => onSubmit(startPage, endPage)}>Submit</button>
     </div>
     
     {/* PDF Canvas */}
-    <div style={{ flex: 1 }}>
+    <div className="pdf-canvas-container">
       <canvas id="pdf-canvas"></canvas>
     </div>
   </div>
 );
-
-
-
 
 }
 
