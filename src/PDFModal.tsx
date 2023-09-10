@@ -129,53 +129,75 @@ function PDFViewer({ pdfUrl, setPageRange, onSubmit }: PDFViewerProps) {
 		}
 	}, [pdfDocument, currentPage, startPage, endPage, pageCount]);
 
-	return (
-		<div>
-			<div style={{ display: "flex", justifyContent: "space-between" }}>
-				<div>
-					<button onClick={handlePrevPage}>-</button>
-					<label className="pdf-input-label">
-						<input
-							className="pdf-input"
-							type="number"
-							value={currentPage}
-							onChange={handlePageChange}
-							onBlur={handlePageBlur}
-						/>
-					</label>
-					<button onClick={handleNextPage}>+</button>
-					&nbsp; Total pages: {pageCount}
-				</div>
-				<div>
-					<label>
-						Range:
-						<input
-							className="pdf-input"
-							type="number"
-							name="startPage"
-							value={startPage}
-							onChange={handlePageRangeChange}
-							onBlur={handlePageRangeBlur}
-						/>
-						-
-						<input
-							className="pdf-input"
-							type="number"
-							name="endPage"
-							value={endPage}
-							onChange={handlePageRangeChange}
-							onBlur={handlePageRangeBlur}
-						/>
-						<span>&nbsp;{totalPages} Pages Selected</span>
-					</label>
-				</div>
-			</div>
-			<canvas id="pdf-canvas"></canvas>
-			<div>
-			<button onClick={() => onSubmit(startPage, endPage)}>Submit</button>
-		</div>
-		</div>
-	);
+return (
+  <div style={{ display: "flex" }}>
+    {/* Control Panel */}
+    <div style={{ 
+      display: "flex", 
+      flexDirection: "column", 
+      alignItems: "flex-start", 
+      padding: "16px", 
+      borderRight: "1px solid #ccc" 
+    }}>
+      {/* Current Page Controls */}
+      <div style={{ marginBottom: "24px" }}>
+        <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+          <button onClick={handlePrevPage}>-</button>
+          <label className="pdf-input-label">
+            <input
+              className="pdf-input"
+              type="number"
+              value={currentPage}
+              onChange={handlePageChange}
+              onBlur={handlePageBlur}
+            />
+          </label>
+          <button onClick={handleNextPage}>+</button>
+        </div>
+        <span>Total pages: {pageCount}</span>
+      </div>
+      <hr style={{ width: "100%", marginBottom: "24px" }} />
+
+      {/* Range Controls */}
+      <div style={{ marginBottom: "24px" }}>
+        <label style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+          Range:
+          <input
+            className="pdf-input"
+            type="number"
+            name="startPage"
+            value={startPage}
+            onChange={handlePageRangeChange}
+            onBlur={handlePageRangeBlur}
+          />
+          -
+          <input
+            className="pdf-input"
+            type="number"
+            name="endPage"
+            value={endPage}
+            onChange={handlePageRangeChange}
+            onBlur={handlePageRangeBlur}
+          />
+        </label>
+        <span>{totalPages} Pages Selected</span>
+      </div>
+      <hr style={{ width: "100%", marginBottom: "24px" }} />
+
+      {/* Submit Button */}
+      <button onClick={() => onSubmit(startPage, endPage)}>Submit</button>
+    </div>
+    
+    {/* PDF Canvas */}
+    <div style={{ flex: 1 }}>
+      <canvas id="pdf-canvas"></canvas>
+    </div>
+  </div>
+);
+
+
+
+
 }
 
 export default class PDFModal extends Modal {
@@ -183,10 +205,13 @@ export default class PDFModal extends Modal {
 	pageRange: { startPage: number; endPage: number } = {
 		startPage: 0,
 		endPage: 0,
-	}
+	};
 	onSubmit: (startPage: number, endPage: number) => void;
 
-	constructor(app: App, onSubmit: (startPage: number, endPage: number) => void) {
+	constructor(
+		app: App,
+		onSubmit: (startPage: number, endPage: number) => void
+	) {
 		super(app);
 		this.onSubmit = onSubmit;
 	}
@@ -203,7 +228,11 @@ export default class PDFModal extends Modal {
 	async onOpen(): Promise<void> {
 		this.root = createRoot(this.contentEl);
 		this.root.render(
-			<PDFViewer pdfUrl={"https://arxiv.org/pdf/quant-ph/0410100.pdf"} setPageRange={this.setPageRange.bind(this)} onSubmit={this.onSubmitModal.bind(this)} />
+			<PDFViewer
+				pdfUrl={"https://arxiv.org/pdf/quant-ph/0410100.pdf"}
+				setPageRange={this.setPageRange.bind(this)}
+				onSubmit={this.onSubmitModal.bind(this)}
+			/>
 		);
 	}
 
