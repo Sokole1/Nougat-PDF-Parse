@@ -69,11 +69,18 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 		let newStartPage = startPage;
 		let newEndPage = endPage;
 
-		if (startPage < 1) newStartPage = 1;
-		if (endPage > pageCount) newEndPage = pageCount;
-		if (startPage > endPage) {
-			newStartPage = endPage;
-			newEndPage = startPage;
+		if (Number.isNaN(newStartPage)) {
+			newStartPage = 1;			
+		}
+
+		if (Number.isNaN(newEndPage)) {
+			newEndPage = pageCount;
+		}
+
+		if (newStartPage < 1) newStartPage = 1;
+		if (newEndPage > pageCount) newEndPage = pageCount;
+		if (newStartPage > newEndPage) {
+			newEndPage = newStartPage;
 		}
 
 		// Ensure currentPage is not out of range
