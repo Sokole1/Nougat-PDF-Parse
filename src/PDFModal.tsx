@@ -152,7 +152,12 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 				<div className="pdf-control-section">
 					<div className="pdf-flex-center pdf-range-label">
 						View Page:
-						<button onClick={handlePrevPage}>-</button>
+						<button 
+						onClick={handlePrevPage}
+						disabled={currentPage <= startPage || currentPage <= 1} // Disabled condition for "-"
+					>
+						-
+					</button>
 						<label className="pdf-input-label">
 							<input
 								className="pdf-input"
@@ -162,7 +167,12 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 								onBlur={handlePageBlur}
 							/>
 						</label>
-						<button onClick={handleNextPage}>+</button>
+						<button 
+						onClick={handleNextPage}
+						disabled={currentPage >= endPage || currentPage >= pageCount} // Disabled condition for "+"
+					>
+						+
+					</button>
 					</div>
 					<span>Total PDF Pages: {pageCount}</span>
 				</div>
