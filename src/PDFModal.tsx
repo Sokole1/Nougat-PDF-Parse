@@ -8,6 +8,7 @@ interface PDFViewerProps {
 	onSubmit: (startPage: number, endPage: number) => void;
 }
 
+
 function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 	let maxPages = 1;
 
@@ -78,10 +79,8 @@ function PDFViewer({ pdfBinary, setPageRange, onSubmit }: PDFViewerProps) {
 		}
 
 		if (newStartPage < 1) newStartPage = 1;
+		if (newStartPage > newEndPage) newEndPage = newStartPage;
 		if (newEndPage > pageCount) newEndPage = pageCount;
-		if (newStartPage > newEndPage) {
-			newEndPage = newStartPage;
-		}
 
 		// Ensure currentPage is not out of range
 		let newCurrentPage = currentPage;
